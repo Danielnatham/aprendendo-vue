@@ -6,29 +6,66 @@ import Tasks from "./components/Tasks.vue";
 import AddTask from "./components/AddTask.vue";
 
 let showAddTask = ref(false);
-
 let tasks = ref({});
 
 onMounted(async () => {
-  const res = await fetch("http://localhost:5000/tasks");
-
-  tasks.value = await res.json();
+  tasks.value = await fetchTasks();
 });
 
-function deleteTask(id) {
-  if (confirm("Tem certeza?")) {
-    tasks.value = tasks.value.filter((task) => task.id !== id);
-  }
+async function fetchTasks() {
+  const res = await fetch("api/tasks");
+
+  const data = await res.json();
+
+  return data;
 }
 
-function toggleReminder(id) {
+async function fetchTask(id) {
+  const res = await fetch(`api/tasks/${id}`);
+
+  const data = await res.json();
+
+  return data;
+}
+
+async function deleteTask(id) {
+  const res = await fetch(`api/tasks/${id}`, {
+    method: "DELETE",
+  });
+
+  res.status == 200
+    ? (tasks.value = tasks.value.filter((task) => task.id !== id))
+    : alert("Error ao deletar Tarefa");
+}
+
+async function addTask(task) {
+  const res = await fetch("api/tasks", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(task),
+  });
+
+  const data = await res.json();
+
+  tasks.value = [...tasks.value, data];
+}
+
+async function toggleReminder(id) {
+  const taskToChange = await fetchTask(id);
+
+  const uptadedTask = { ...taskToChange, reminder: !taskToChange.reminder };
+
+  const res = await fetch(`api/tasks/${id}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(uptadedTask),
+  });
+
+  const data = await res.json();
+
   tasks.value = tasks.value.map((task) =>
-    task.id === id ? { ...task, reminder: !task.reminder } : task
+    task.id === id ? { ...task, reminder: !data.reminder } : task
   );
-}
-
-function addTask(task) {
-  tasks.value = [...tasks.value, task];
 }
 
 function toggleAddTask() {

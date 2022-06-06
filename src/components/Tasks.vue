@@ -2,7 +2,7 @@
 import Task from "./Task.vue";
 
 defineProps({
-  tasks: Array,
+  tasks: Object,
 });
 
 defineEmits(["delete-task", "toggle-reminder"]);
