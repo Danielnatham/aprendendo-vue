@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
 
 import PageHeader from "./components/PageHeader.vue";
 import Tasks from "./components/Tasks.vue";
@@ -7,26 +7,13 @@ import AddTask from "./components/AddTask.vue";
 
 let showAddTask = ref(false);
 
-let tasks = ref([
-  {
-    id: 1,
-    text: "Consulta Oftalmo",
-    day: "1 de Março as 12:30",
-    reminder: true,
-  },
-  {
-    id: 2,
-    text: "Consulta Otorrino",
-    day: "2 de Março as 13:10",
-    reminder: true,
-  },
-  {
-    id: 3,
-    text: "Consulta Clinico Geral",
-    day: "3 de Março as 14:20",
-    reminder: false,
-  },
-]);
+let tasks = ref({});
+
+onMounted(async () => {
+  const res = await fetch("http://localhost:5000/tasks");
+
+  tasks.value = await res.json();
+});
 
 function deleteTask(id) {
   if (confirm("Tem certeza?")) {
